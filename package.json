@@ -1,0 +1,14 @@
+{
+  "name": "testcode",
+  "version": "1.0.0",
+  "description": "cobus atech unit testing",
+  "main": "index.ts",
+  "scripts": {
+    "test": "test start"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "luxon": "^3.5.0"
+  }
+}
