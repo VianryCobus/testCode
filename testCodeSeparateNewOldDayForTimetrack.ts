@@ -56,30 +56,37 @@ class TimetrackingSeparateNewOldDay {
         console.log(`dMYEndTimetrack`, dMYEndTimetrack)
         console.log(`dMYEndTimetrackISO`, new Date(dMYEndTimetrack). toISOString())
         console.log(`startDayTimezoneLocalISO`, new Date(startDayTimezoneLocal).toISOString())
+        console.log(`startDayTimezoneLocal`, startDayTimezoneLocal)
         // first step add 1 day to dummyCountLoop so that can determine complete local timezone time 
         let dummyCountLoopCompleteTimeTzLocal: number = dummyCountLoop + 24 * 3600 * 1000
         dummyCountLoopCompleteTimeTzLocal -= formulaHourMs
         let dummyCountLoopBeginTimeTzLocal: number = dummyCountLoop - formulaHourMs;
+        console.log({
+          startTimeNumber,
+          dummyCountLoopBeginTimeTzLocal,
+          dummyCountLoopBeginTimeTzLocalIso: new Date(dummyCountLoopBeginTimeTzLocal).toISOString(),
+          dummyCountLoopCompleteTimeTzLocal,
+          dummyCountLoopCompleteTimeTzLocalIso: new Date(dummyCountLoopCompleteTimeTzLocal).toISOString(),
+        })
         if (dummyCountLoop >= startDayTimezoneLocal || (gmtIsLowerThanZero && dummyCountLoop <= startDayTimezoneLocal)) {
           let newDataDate: string = new Date(dummyCountLoop).toISOString().split('T')[0]
           // check if gmt < 0 and start timetrack is lower than start range timezone local
-          if (gmtIsLowerThanZero && startTimeNumber < dummyCountLoopBeginTimeTzLocal){
+          if (
+              gmtIsLowerThanZero && 
+              (
+                startTimeNumber < dummyCountLoopBeginTimeTzLocal &&
+                startDayTimezoneLocal < startTimeNumber
+              )
+            ){
+            console.log(`masuk -1`)
             newDataDate = new Date(dummyCountLoop - 24 * 3600 * 1000).toISOString().split('T')[0]
           }
+          console.log({
+            newDataDate
+          })
           // just validate so that there's no possibility for redundant date
           if (!dates.includes(newDataDate)){
             // make sure starttimeTrack track under candidate date complete local timezone range
-            /**
-             * startTime: "2025-04-29T23:00:00.000Z",
-      endTime: "2025-04-30T07:00:00.000Z",
-startTime: "2025-04-30T16:00:00.000Z",
-      endTime: "2025-04-30T18:00:00.000Z",
-             */
-            console.log({
-              startTimeNumber,
-              dummyCountLoopCompleteTimeTzLocal,
-              dummyCountLoopCompleteTimeTzLocalIso: new Date(dummyCountLoopCompleteTimeTzLocal).toISOString(),
-            })
             if (startTimeNumber < dummyCountLoopCompleteTimeTzLocal){
               console.log(`masuk1`)
               dates.push(newDataDate);
@@ -7243,65 +7250,139 @@ let dataOnDb: any = null; // initialitation data test purpose;
 // console.log(cases17)
 
 
-// TEST CASE 18
-console.log(`=====TEST CASE 18 - start Day 2025-07-06, end Day 2025-07-06 AND GMT 10`)
+// // TEST CASE 18
+// console.log(`=====TEST CASE 18 - start Day 2025-07-06, end Day 2025-07-06 AND GMT 10`)
+// dataOnDb = {
+//   timeTracking: [
+//     {
+//       _id: "686bca1a4947b60bd6196958",
+//       startTime: "2025-07-06T12:00:00.000Z",
+//       endTime: "2025-07-06T12:10:00.000Z",
+//       duration: 600000,
+//       userId: "666fc6c9aa1ef933c1ee536d",
+//       projectId: [Object],
+//       taskId: [Object],
+//       companyId: "666fc6c9aa1ef933c1ee537d",
+//       status: 'stop',
+//       device: 'manual',
+//       manualReason: 'twesy',
+//       createdBy: [Object],
+//       updatedBy: [Object],
+//       isDeleted: null,
+//       timeManualStatus: 'Pending',
+//       createdAt: "2025-07-07T13:22:34.877Z",
+//       updatedAt: "2025-07-07T13:22:34.877Z",
+//       __v: 0
+//     },
+//     {
+//       _id: "686bca374947b60bd61969b5",
+//       startTime: "2025-07-06T14:00:00.000Z",
+//       endTime: "2025-07-06T14:10:00.000Z",
+//       duration: 600000,
+//       userId: "666fc6c9aa1ef933c1ee536d",
+//       projectId: [Object],
+//       taskId: [Object],
+//       companyId: "666fc6c9aa1ef933c1ee537d",
+//       status: 'stop',
+//       device: 'manual',
+//       manualReason: 'test',
+//       createdBy: [Object],
+//       updatedBy: [Object],
+//       isDeleted: null,
+//       timeManualStatus: 'Approved',
+//       createdAt: "2025-07-07T13:23:03.671Z",
+//       updatedAt: "2025-07-10T15:46:16.186Z",
+//       __v: 0,
+//       approvalAt: "2025-07-10T15:46:16.185Z",
+//       approvalReason: '',
+//       processedBy: [Object]
+//     }
+//   ],
+//   gmt: '10',
+//   startDayTimezoneClient: 1751724000000,
+//   hadDiffDay: false
+// }
+
+// const cases18 = new TimetrackingSeparateNewOldDay().separateNewOldDay(
+//   dataOnDb.timeTracking,
+//   dataOnDb.gmt,
+//   dataOnDb.startDayTimezoneClient,
+//   dataOnDb.hadDiffDay,
+//   // dataOnDb.endDayTimezoneClient,
+//   // dataOnDb.type,
+// )
+// console.log(cases18)
+
+// TEST CASE 19
+console.log(`=====TEST CASE 19 - start Day 2025-08-29, end Day 2025-08-29 AND GMT -9`)
 dataOnDb = {
   timeTracking: [
     {
-      _id: "686bca1a4947b60bd6196958",
-      startTime: "2025-07-06T12:00:00.000Z",
-      endTime: "2025-07-06T12:10:00.000Z",
-      duration: 600000,
+      _id: "68b162e61d4d98e5c8139ab0",
+      startTime: "2025-08-29T08:20:54.881Z",
+      endTime: "2025-08-29T09:26:07.327Z",
+      duration: 3912446,
       userId: "666fc6c9aa1ef933c1ee536d",
       projectId: [Object],
-      taskId: [Object],
+      taskId: "666fe4abab682a18fc5f349c",
       companyId: "666fc6c9aa1ef933c1ee537d",
       status: 'stop',
-      device: 'manual',
-      manualReason: 'twesy',
-      createdBy: [Object],
-      updatedBy: [Object],
+      device: 'web',
+      createdBy: "666fc6c9aa1ef933c1ee536d",
+      updatedBy: "666fc6c9aa1ef933c1ee536d",
       isDeleted: null,
       timeManualStatus: 'Pending',
-      createdAt: "2025-07-07T13:22:34.877Z",
-      updatedAt: "2025-07-07T13:22:34.877Z",
-      __v: 0
+      user: [Object]
     },
     {
-      _id: "686bca374947b60bd61969b5",
-      startTime: "2025-07-06T14:00:00.000Z",
-      endTime: "2025-07-06T14:10:00.000Z",
-      duration: 600000,
+      _id: "68b1ae7a850dcc5899933fc5",
+      startTime: "2025-08-29T09:27:00.000Z",
+      endTime: "2025-08-29T16:59:00.000Z",
+      duration: 27120000,
       userId: "666fc6c9aa1ef933c1ee536d",
       projectId: [Object],
-      taskId: [Object],
+      taskId: "666fe4abab682a18fc5f349c",
       companyId: "666fc6c9aa1ef933c1ee537d",
       status: 'stop',
       device: 'manual',
-      manualReason: 'test',
-      createdBy: [Object],
-      updatedBy: [Object],
+      manualReason: 'bl',
+      createdBy: "666fc6c9aa1ef933c1ee536d",
+      updatedBy: "666fc6c9aa1ef933c1ee536d",
       isDeleted: null,
       timeManualStatus: 'Approved',
-      createdAt: "2025-07-07T13:23:03.671Z",
-      updatedAt: "2025-07-10T15:46:16.186Z",
-      __v: 0,
-      approvalAt: "2025-07-10T15:46:16.185Z",
-      approvalReason: '',
-      processedBy: [Object]
+      user: [Object]
+    },
+    {
+      _id: "68b1b262850dcc5899935d71",
+      startTime: "2025-08-29T14:00:02.428Z",
+      endTime: "2025-08-29T14:00:08.928Z",
+      duration: 6500,
+      userId: "666fc6c9aa1ef933c1ee536d",
+      projectId: [Object],
+      taskId: "666fe4abab682a18fc5f349c",
+      companyId: "666fc6c9aa1ef933c1ee537d",
+      status: 'stop',
+      device: 'web',
+      createdBy: "666fc6c9aa1ef933c1ee536d",
+      updatedBy: "666fc6c9aa1ef933c1ee536d",
+      isDeleted: null,
+      timeManualStatus: 'Pending',
+      user: [Object]
     }
   ],
-  gmt: '10',
-  startDayTimezoneClient: 1751724000000,
-  hadDiffDay: false
+  gmt: -9,
+  startDayTimezoneClient: 1756458000000,
+  hadDiffDay: false,
+  endDayTimezoneClient: 1756544400000,
+  type: 'staff'
 }
 
-const cases18 = new TimetrackingSeparateNewOldDay().separateNewOldDay(
+const cases19 = new TimetrackingSeparateNewOldDay().separateNewOldDay(
   dataOnDb.timeTracking,
   dataOnDb.gmt,
   dataOnDb.startDayTimezoneClient,
   dataOnDb.hadDiffDay,
-  // dataOnDb.endDayTimezoneClient,
-  // dataOnDb.type,
+  dataOnDb.endDayTimezoneClient,
+  dataOnDb.type,
 )
-console.log(cases18)
+console.log(cases19)
